@@ -1,0 +1,43 @@
+[project]
+name = "litreview-pipeline"
+version = "0.1.0"
+description = "Topic-agnostic literature-review pipeline: OpenAlex search → Claude filter → PDF extract + link enrichment → Claude per-paper summaries → markdown synthesis. Designed to be driven by a Claude Code subagent."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+    { name = "hwu", email = "hwu@altoslabs.com" },
+]
+keywords = ["literature-review", "arxiv", "research", "claude", "agent"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Text Processing :: Markup :: Markdown",
+    "License :: OSI Approved :: MIT License",
+]
+
+dependencies = [
+    "beautifulsoup4>=4.14",
+    "httpx>=0.28",
+    "pymupdf>=1.27",
+    "pyyaml>=6",
+]
+
+[project.scripts]
+litreview = "litreview.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/HaiyuWu/litreview-pipeline"
+Repository = "https://github.com/HaiyuWu/litreview-pipeline"
+
+[build-system]
+requires = ["uv_build>=0.8.15,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+# Project name is litreview-pipeline (PyPI/repo) but the Python module
+# is just `litreview` (cleaner import). Tell uv_build where to find it.
+module-name = "litreview"
+# Include non-.py files (agent .md, example .yaml) as package data.
+module-root = "src"

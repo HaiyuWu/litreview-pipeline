@@ -1,0 +1,115 @@
+# litreview-pipeline — example topic config.
+#
+# Copy this to your project (e.g. configs/<short-name>.yaml), edit the topic
+# and queries to match your research area, then drive the pipeline via
+# `litreview <subcommand> --config <this-file>` or via the litreview-builder
+# Claude Code subagent.
+
+# ---- Identity ----------------------------------------------------------
+short_name: example-topic
+topic: A one-sentence description of the research area this review covers.
+mailto: you@example.com       # added to OpenAlex User-Agent (polite pool)
+
+# ---- Paths -------------------------------------------------------------
+# Resolved relative to THIS YAML's directory (not cwd). Absolute paths are
+# also supported, and `~` + `$VAR` are expanded. Three common layouts:
+#
+#   1. Project-local (default — cache lives next to the deliverable):
+#        cache_dir: ../cache-example-topic
+#        output_file: ../example-topic-lit-review.md
+#
+#   2. Centralized cache (one disk location for all topics):
+#        cache_dir: ~/litreview-cache/example-topic
+#        output_file: ../example-topic-lit-review.md
+#
+#   3. Env-var-driven (CI / shared volumes):
+#        cache_dir: $LITREVIEW_CACHE_HOME/example-topic
+#        output_file: ../example-topic-lit-review.md
+#
+cache_dir: ../cache-example-topic
+output_file: ../example-topic-lit-review.md
+
+# ---- Stage A: 4–6 search axes, each a list of arxiv queries -----------
+# Aim for 4–5 axes covering: core methods, adjacent methods, application
+# domain, datasets/benchmarks. Recall depends on coverage here.
+queries:
+  A1_CoreMethod:
+    - "core method name and synonyms"
+    - "alternative method name"
+  A2_AdjacentMethods:
+    - "related technique"
+    - "neighbour family"
+  A3_Application:
+    - "target application domain"
+  A4_Data:
+    - "benchmarks and datasets"
+
+# ---- Stage A5: 4–6 seed papers (citation-graph anchors) ----------------
+# arxiv_id: short display name
+seeds:
+  "0000.00000": Seed paper 1 short name
+  "0000.00001": Seed paper 2 short name
+
+# ---- Stage A2: must-include arxiv IDs (bypass OpenAlex) ----------------
+# Useful when OpenAlex has wrong/missing metadata for a paper, or to pin
+# a known relevant paper that's not surfaced by keyword search.
+must_include: []
+# Example:
+# must_include:
+#   - arxiv_id: "2511.08544"
+#     section: Latent-WM
+#     reason: "Foundational paper defining the regularizer we plan to use."
+
+# ---- Stage B target keeper count ---------------------------------------
+keepers_target_range: [25, 45]
+
+# ---- Citation source ---------------------------------------------------
+# Where the `cited_by_count` field comes from. OpenAlex (Stage A's native
+# source) systematically undercounts citations for ML/CS papers because it
+# only counts DOI-registered references. Semantic Scholar's counts are
+# typically ~10x higher and much closer to Google Scholar.
+# Options: 'openalex' (no enrichment) | 'semanticscholar' (default).
+# When 'semanticscholar', run `litreview enrich-citations --config x.yaml`
+# after `search` to replace counts in candidates.json/keepers.json and patch
+# the `citations: N` line in each per-paper .md.
+citation_source: semanticscholar
+
+# ---- Stage E options ---------------------------------------------------
+# Whether to include a clickable Table of Contents (linked H2-section nav)
+# right after the Overview. Default true.
+include_toc: true
+
+# Whether to include a sortable index table at the end of the doc (one row
+# per paper with code/data/project link cells). Default true.
+include_index_table: true
+
+# ---- Stage E: section taxonomy (order + titles + framing blurbs) -------
+# Choose 4–6 sections that match the structure of your topic. The agent
+# uses (id, title, blurb) to organize the final markdown. Each blurb is
+# 1–3 sentences explaining what's in this section and why it matters.
+sections:
+  - id: Core-Method
+    title: Core method family
+    blurb: >
+      Methodology backbone for this review. Papers defining the technique we
+      care most about.
+  - id: Adjacent-Methods
+    title: Adjacent and competing approaches
+    blurb: >
+      Methods in nearby families that compete with or inform the core
+      approach.
+  - id: Data
+    title: Datasets and benchmarks
+    blurb: >
+      Where training data comes from and how downstream performance is
+      measured.
+  - id: Analysis
+    title: Probe and analysis methodology
+    blurb: >
+      How to evaluate whether learned representations actually capture the
+      structure we want.
+  - id: Application
+    title: Application context
+    blurb: >
+      High-signal application papers that frame the deployment context, even
+      if they aren't methodological contributions.

@@ -1,0 +1,22 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Pipeline-generated artifacts (always topic-specific, never committed from this repo)
+# Note: cache/ and configs/ live in the USER's downstream project, not here.
+# But ignore them if someone runs the pipeline in this repo by accident.
+cache*/
+configs/*-lit-review.md
+
